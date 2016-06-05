@@ -1,0 +1,48 @@
+#!/bin/sh
+# Copyright (c) 2016 Marcus Puchalla
+# MIT License
+#
+# Pre-commit hooks script for git to extract in-code comments and include them in the commit message.
+# This script will only work if the appropriate 'prepare-commit-msg' hook was installed.
+#
+# Inspired by https://github.com/thebearjew/commit-comments
+#
+###[def section]
+#in here we store additinal commit messages
+messages=""
+commit_message_file=".git/test_msg"
+
+commit_break_file=".git/break_on_commit_msg"
+#identifier for gicc syntax 
+identifier="@commit: "
+
+#this will inidicate if we found a commit message
+found="0"
+
+###[def section]
+#what files changes
+staged_files="$(git diff --name-only --staged | cat)"
+
+for i in $staged_files
+do
+    foundMsg="$(ggrep $identifier $i)"
+    if [[ ! -z "$foundMsg" ]]
+    then
+	found="1"
+	messages="$messages\n$foundMsg"
+	echo "found commit message: $foundMsg <<--"
+	sed -i.bak "/$identifier/d" ./$i
+    else
+	echo "not found"
+    fi
+done
+
+echo "$messages" >> $commit_message_file
+
+if [[ "$found" -eq "1" ]]
+then
+    echo "1" > $commit_break_file
+    echo "breaking for change"
+fi
+
+exit 0

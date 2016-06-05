@@ -1,0 +1,28 @@
+#!/bin/sh
+# Copyright (c) 2016 Marcus Puchalla
+# MIT License
+#
+# Pre-commit hooks script for git to extract in-code comments and include them in the commit message.
+# This script will only work if the appropriate 'pre-commit' hook was installed.
+#
+# Inspired by https://github.com/thebearjew/commit-comments
+
+if [[ -f .git/break_on_commit_msg ]]
+then
+    echo "forced to break as commit comments found"
+    rm .git/break_on_commit_msg
+    if [ "$2" == "message" ]
+    then	
+	cat $1 >> .git/test_msg
+    fi
+    git commit .
+    exit 1
+else
+    echo "actually commiting changes"
+    cat .git/test_msg | cat - "$1" > temp_cmmt_msg && mv temp_cmmt_msg "$1"
+    rm .git/test_msg    
+fi
+
+exit 0
+
+
