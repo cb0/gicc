@@ -23,10 +23,13 @@ found="0"
 #what files changes
 staged_files="$(git diff --name-only --staged | cat)"
 
+grep_command="ggrep"
+command -v ggrep >/dev/null 2>&1 || grep_command="grep"
+
 for i in $staged_files
 do
-    foundMsg="$(ggrep $identifier $i)"
-    if [[ ! -z "$foundMsg" ]]
+    foundMsg="$($grep_command $identifier $i)"
+    if [ ! -z "$foundMsg" ]
     then
 	found="1"
 	messages="$messages\n$foundMsg"
@@ -39,7 +42,7 @@ done
 
 echo "$messages" >> $commit_message_file
 
-if [[ "$found" -eq "1" ]]
+if [ "$found" -eq "1" ]
 then
     echo "1" > $commit_break_file
     echo "breaking for change"

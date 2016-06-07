@@ -7,11 +7,11 @@
 #
 # Inspired by https://github.com/thebearjew/commit-comments
 
-if [[ -f .git/break_on_commit_msg ]]
+if [ -f .git/break_on_commit_msg ]
 then
     echo "forced to break as commit comments found"
     rm .git/break_on_commit_msg
-    if [ "$2" == "message" ]
+    if [ "$2" = "message" ];
     then	
 	cat $1 >> .git/test_msg
     fi
